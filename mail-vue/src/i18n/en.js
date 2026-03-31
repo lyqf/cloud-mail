@@ -332,6 +332,15 @@ const en = {
     batchDeleteSuccess: '{count} alias(es) deleted',
     batchDeleteEmpty: 'No matching aliases found',
     batchDeleteKeywordEmpty: 'Keyword cannot be empty',
+    batchDeleteEmail: 'Batch Delete',
+    batchDeleteEmailKeyword: 'Enter keyword',
+    batchDeleteEmailField: 'Match field',
+    batchDeleteEmailFieldSender: 'Sender address',
+    batchDeleteEmailFieldName: 'Sender name',
+    batchDeleteEmailFieldSubject: 'Subject',
+    batchDeleteEmailConfirm: 'Delete {count} matched email(s)? This cannot be undone.',
+    batchDeleteEmailSuccess: '{count} email(s) deleted',
+    batchDeleteEmailEmpty: 'No matching emails found',
 }
 
 export default en

@@ -332,5 +332,14 @@ const zh = {
     batchDeleteSuccess: '已删除 {count} 个别名邮箱',
     batchDeleteEmpty: '未找到匹配的别名',
     batchDeleteKeywordEmpty: '关键词不能为空',
+    batchDeleteEmail: '批量删除邮件',
+    batchDeleteEmailKeyword: '输入关键词',
+    batchDeleteEmailField: '匹配字段',
+    batchDeleteEmailFieldSender: '发件人地址',
+    batchDeleteEmailFieldName: '发件人名称',
+    batchDeleteEmailFieldSubject: '邮件主题',
+    batchDeleteEmailConfirm: '确认删除 {count} 封匹配的邮件？此操作不可恢复。',
+    batchDeleteEmailSuccess: '已删除 {count} 封邮件',
+    batchDeleteEmailEmpty: '未找到匹配的邮件',
 }
 export default zh

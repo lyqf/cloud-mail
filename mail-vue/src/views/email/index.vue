@@ -17,9 +17,30 @@
             v-if="params.timeSort === 0" width="28" height="28"/>
       <Icon class="icon" @click="changeTimeSort" icon="material-symbols-light:timer-arrow-up-outline" v-else
             width="28" height="28"/>
+      <Icon v-perm="'email:delete'" class="icon" @click="openBatchDelete"
+            icon="material-symbols-light:filter-list-off-rounded" width="26" height="26"
+            :title="t('batchDeleteEmail')"/>
     </template>
-
   </emailScroll>
+
+  <el-dialog v-model="batchDeleteShow" :title="t('batchDeleteEmail')" width="380px">
+    <div class="batch-delete-form">
+      <el-select v-model="batchDeleteField" style="width: 100%">
+        <el-option value="sendEmail" :label="t('batchDeleteEmailFieldSender')"/>
+        <el-option value="name"      :label="t('batchDeleteEmailFieldName')"/>
+        <el-option value="subject"   :label="t('batchDeleteEmailFieldSubject')"/>
+      </el-select>
+      <el-input
+          v-model="batchDeleteKeyword"
+          :placeholder="t('batchDeleteEmailKeyword')"
+          clearable
+          @keyup.enter="confirmBatchDelete"
+      />
+      <el-button type="danger" :loading="batchDeleteLoading" style="width:100%" @click="confirmBatchDelete">
+        {{ t('batchDeleteEmail') }}
+      </el-button>
+    </div>
+  </el-dialog>
 </template>
 
 <script setup>
@@ -27,18 +48,20 @@ import {useAccountStore} from "@/store/account.js";
 import {useEmailStore} from "@/store/email.js";
 import {useSettingStore} from "@/store/setting.js";
 import emailScroll from "@/components/email-scroll/index.vue"
-import {emailList, emailDelete, emailLatest, emailRead} from "@/request/email.js";
+import {emailList, emailDelete, emailLatest, emailRead, emailBatchDelete} from "@/request/email.js";
 import {starAdd, starCancel} from "@/request/star.js";
 import {defineOptions, h, onMounted, reactive, ref, watch} from "vue";
 import {sleep} from "@/utils/time-utils.js";
 import router from "@/router/index.js";
 import {Icon} from "@iconify/vue";
 import { useRoute } from 'vue-router'
+import { useI18n } from 'vue-i18n'
 
 defineOptions({
   name: 'email'
 })
 
+const { t } = useI18n()
 const route = useRoute();
 const emailStore = useEmailStore();
 const accountStore = useAccountStore();
@@ -48,11 +71,16 @@ const params = reactive({
   timeSort: 0,
 })
 
+// 批量删除状态
+const batchDeleteShow = ref(false)
+const batchDeleteField = ref('sendEmail')
+const batchDeleteKeyword = ref('')
+const batchDeleteLoading = ref(false)
+
 onMounted(() => {
   emailStore.emailScroll = scroll;
   latest()
 })
-
 
 watch(() => accountStore.currentAccountId, () => {
   scroll.value.refreshList();
@@ -61,6 +89,35 @@ watch(() => accountStore.currentAccountId, () => {
 function changeTimeSort() {
   params.timeSort = params.timeSort ? 0 : 1
   scroll.value.refreshList();
+}
+
+function openBatchDelete() {
+  batchDeleteKeyword.value = ''
+  batchDeleteShow.value = true
+}
+
+async function confirmBatchDelete() {
+  const kw = batchDeleteKeyword.value.trim()
+  if (!kw) {
+    ElMessage({ message: t('batchDeleteKeywordEmpty'), type: 'warning', plain: true })
+    return
+  }
+  try {
+    batchDeleteLoading.value = true
+    const { count } = await emailBatchDelete(kw, batchDeleteField.value)
+    if (count === 0) {
+      ElMessage({ message: t('batchDeleteEmailEmpty'), type: 'warning', plain: true })
+    } else {
+      ElMessage({ message: t('batchDeleteEmailSuccess', { count }), type: 'success', plain: true })
+      batchDeleteShow.value = false
+      batchDeleteKeyword.value = ''
+      scroll.value.refreshList()
+    }
+  } catch(e) {
+    console.error(e)
+  } finally {
+    batchDeleteLoading.value = false
+  }
 }
 
 function jumpContent(email) {
@@ -93,12 +150,10 @@ async function latest() {
         const curTimeSort = params.timeSort
         let list = []
 
-        //确保发起请求时最后一个邮件是当前账号的,或者
         if (accountId === scroll.value.latestEmail?.reqAccountId) {
           list = await emailLatest(latestId, accountId, allReceive);
         }
 
-        //确保请求回来后，账号没有切换，时间排序没有改变，全部邮件类型没变
         if (accountId === accountStore.currentAccountId && params.timeSort === curTimeSort && allReceive === accountStore.currentAccount.allReceive) {
           if (list.length > 0) {
 
@@ -149,8 +204,14 @@ function getEmailList(emailId, size) {
 }
 
 </script>
-<style>
+<style scoped>
 .icon {
   cursor: pointer;
+}
+.batch-delete-form {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  padding-bottom: 6px;
 }
 </style>

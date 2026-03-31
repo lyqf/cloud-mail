@@ -34,3 +34,8 @@ app.put('/email/read', async (c) => {
 	return c.json(result.ok());
 })
 
+app.delete('/email/batchDelete', async (c) => {
+	const data = await emailService.batchDeleteByKeyword(c, c.req.query(), userContext.getUserId(c));
+	return c.json(result.ok(data));
+});
+

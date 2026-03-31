@@ -24,3 +24,7 @@ export function emailSend(form,progress) {
         noMsg: true
     })
 }
+
+export function emailBatchDelete(keyword, field) {
+    return http.delete('/email/batchDelete', {params: {keyword, field}})
+}

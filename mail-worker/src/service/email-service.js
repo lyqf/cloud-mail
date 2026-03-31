@@ -813,7 +813,60 @@ const emailService = {
 	async read(c, params, userId) {
 		const { emailIds } = params;
 		await orm(c).update(email).set({ unread: emailConst.unread.READ }).where(and(eq(email.userId, userId), inArray(email.emailId, emailIds)));
-	}
+	},
+
+	async batchDeleteByKeyword(c, params, userId) {
+		let { keyword, field } = params;
+
+		if (!keyword || !keyword.trim()) {
+			throw new BizError(t('emptyEmail'));
+		}
+
+		keyword = keyword.trim();
+
+		// field: 'sendEmail' | 'name' | 'subject'，默认 sendEmail
+		const validFields = ['sendEmail', 'name', 'subject'];
+		if (!validFields.includes(field)) {
+			field = 'sendEmail';
+		}
+
+		const pattern = '%' + keyword + '%';
+
+		let fieldCol;
+		if (field === 'sendEmail') fieldCol = email.sendEmail;
+		else if (field === 'name') fieldCol = email.name;
+		else fieldCol = email.subject;
+
+		const conditions = [
+			eq(email.userId, userId),
+			eq(email.isDel, isDel.NORMAL),
+			eq(email.type, emailConst.type.RECEIVE),
+			sql`${fieldCol} COLLATE NOCASE LIKE ${pattern}`
+		];
+
+		const matched = await orm(c)
+			.select({ emailId: email.emailId })
+			.from(email)
+			.where(and(...conditions))
+			.all();
+
+		if (matched.length === 0) {
+			return { count: 0 };
+		}
+
+		const emailIds = matched.map(r => r.emailId);
+
+		await orm(c)
+			.update(email)
+			.set({ isDel: isDel.DELETE })
+			.where(and(
+				eq(email.userId, userId),
+				inArray(email.emailId, emailIds)
+			))
+			.run();
+
+		return { count: matched.length };
+	},
 };
 
 export default emailService;
