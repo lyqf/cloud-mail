@@ -324,6 +324,13 @@ const zh = {
     searchUser: '搜索用户',
     searchEmail: '搜索邮箱',
     searchSender: '搜索发件人',
-    userEmail: '用户邮箱'
+    userEmail: '用户邮箱',
+    batchDeleteAlias: '批量删除别名',
+    batchDeleteAliasDesc: '模糊匹配邮箱前缀，批量软删除别名（不含主邮箱）',
+    batchDeleteKeyword: '输入关键词模糊匹配',
+    batchDeleteConfirm: '确认删除 {count} 个匹配的别名邮箱？',
+    batchDeleteSuccess: '已删除 {count} 个别名邮箱',
+    batchDeleteEmpty: '未找到匹配的别名',
+    batchDeleteKeywordEmpty: '关键词不能为空',
 }
 export default zh

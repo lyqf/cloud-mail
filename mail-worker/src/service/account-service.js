@@ -265,7 +265,55 @@ const accountService = {
 		let mainSort = mainAccountRow.sort === 0 ? 2 : mainAccountRow.sort + 1;
 		await orm(c).update(account).set({ sort: mainSort }).where(eq(account.email, userRow.email )).run();
 		await orm(c).update(account).set({ sort: mainSort - 1 }).where(and(eq(account.accountId, accountId),eq(account.userId,userId))).run();
-	}
+	},
+
+	async batchDelete(c, params, loginUserId) {
+		let { keyword, targetUserId } = params;
+
+		if (!keyword || !keyword.trim()) {
+			throw new BizError(t('emptyEmail'));
+		}
+
+		keyword = keyword.trim();
+
+		// 管理员可以指定 targetUserId 操作其他用户的别名，否则只能操作自己的
+		const loginUserRow = await userService.selectById(c, loginUserId);
+		const isAdmin = loginUserRow.email === c.env.admin;
+
+		const userId = (isAdmin && targetUserId) ? Number(targetUserId) : loginUserId;
+
+		const userRow = await userService.selectById(c, userId);
+
+		// 构建条件：属于当前用户、不是主邮箱、关键词模糊匹配、未删除
+		const conditions = [
+			eq(account.userId, userId),
+			eq(account.isDel, isDel.NORMAL),
+			ne(account.email, userRow.email),
+			sql`${account.email} COLLATE NOCASE LIKE ${'%' + keyword + '%'}`
+		];
+
+		// 先查询匹配的账户
+		const matched = await orm(c)
+			.select({ accountId: account.accountId, email: account.email })
+			.from(account)
+			.where(and(...conditions))
+			.all();
+
+		if (matched.length === 0) {
+			return { count: 0 };
+		}
+
+		const accountIds = matched.map(r => r.accountId);
+
+		// 软删除
+		await orm(c)
+			.update(account)
+			.set({ isDel: isDel.DELETE })
+			.where(inArray(account.accountId, accountIds))
+			.run();
+
+		return { count: matched.length };
+	},
 };
 
 export default accountService;

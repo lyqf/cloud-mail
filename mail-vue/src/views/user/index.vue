@@ -188,7 +188,19 @@
       </div>
     </el-dialog>
     <el-dialog class="account-dialog" v-model="accountShow" :title="t('userAccount')" @closed="resetAccountList" >
-      <el-table :data="accountList" style="height: 480px" v-loading="accountLoading" element-loading-background="transparent" :empty-text="accountLoading ? '' : null">
+      <div class="account-toolbar">
+        <el-input
+            v-model="batchKeyword"
+            :placeholder="t('batchDeleteKeyword')"
+            clearable
+            class="batch-input"
+            @keyup.enter="doBatchDelete"
+        />
+        <el-button type="danger" :loading="batchDeleteLoading" @click="doBatchDelete">
+          {{ t('batchDeleteAlias') }}
+        </el-button>
+      </div>
+      <el-table :data="accountList" style="height: 420px" v-loading="accountLoading" element-loading-background="transparent" :empty-text="accountLoading ? '' : null">
         <el-table-column property="email" :label="t('emailAccount')" >
           <template #default="props">
             <div class="email-row">{{ props.row.email }}</div>
@@ -217,7 +229,6 @@
         <el-pagination
             :disabled="accountLoading"
             background
-
             layout="prev, pager, next"
             :pager-count="3"
             :total="accountParams.total"
@@ -376,7 +387,8 @@ import {
   userRestSendCount,
   userRestore,
   userDeleteAccount,
-  userAllAccount
+  userAllAccount,
+  accountBatchDelete
 } from '@/request/user.js'
 import {roleSelectUse} from "@/request/role.js";
 import {Icon} from "@iconify/vue";
@@ -468,6 +480,8 @@ const tableLoading = ref(true)
 const roleList = reactive([])
 const mySelect = ref({})
 const accountList = reactive([])
+const batchKeyword = ref('')
+const batchDeleteLoading = ref(false)
 const accountParams = reactive({
   size: 10,
   num: 0,
@@ -577,6 +591,27 @@ function resetAccountList() {
   accountParams.num = 0
   accountParams.size = 10
   accountParams.total = 0
+}
+
+async function doBatchDelete() {
+  const kw = batchKeyword.value.trim()
+  if (!kw) {
+    ElMessage({ message: t('batchDeleteKeywordEmpty'), type: 'warning', plain: true })
+    return
+  }
+  try {
+    batchDeleteLoading.value = true
+    const { count } = await accountBatchDelete(accountParams.userId, kw)
+    if (count === 0) {
+      ElMessage({ message: t('batchDeleteEmpty'), type: 'warning', plain: true })
+    } else {
+      ElMessage({ message: t('batchDeleteSuccess', { count }), type: 'success', plain: true })
+      batchKeyword.value = ''
+      getAccountList()
+    }
+  } finally {
+    batchDeleteLoading.value = false
+  }
 }
 
 function openAccountList(userId) {
@@ -1151,6 +1186,17 @@ function adjustWidth() {
 :deep(.linuxdo-avatar) {
   position: relative !important;
   top: 10px;
+}
+
+.account-toolbar {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 12px;
+  align-items: center;
+
+  .batch-input {
+    flex: 1;
+  }
 }
 
 .account-pagination {

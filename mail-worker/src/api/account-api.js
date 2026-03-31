@@ -32,3 +32,8 @@ app.put('/account/setAsTop', async (c) => {
 	await accountService.setAsTop(c, await c.req.json(), userContext.getUserId(c));
 	return c.json(result.ok());
 });
+
+app.delete('/account/batchDelete', async (c) => {
+	const data = await accountService.batchDelete(c, c.req.query(), userContext.getUserId(c));
+	return c.json(result.ok(data));
+});

@@ -324,7 +324,14 @@ const en = {
     searchUser: 'Search by user',
     searchEmail: 'Search by Email',
     searchSender: 'Search by Sender',
-    userEmail: 'Email Address'
+    userEmail: 'Email Address',
+    batchDeleteAlias: 'Batch Delete Aliases',
+    batchDeleteAliasDesc: 'Fuzzy match email prefix to batch soft-delete aliases (main email excluded)',
+    batchDeleteKeyword: 'Enter keyword to fuzzy match',
+    batchDeleteConfirm: 'Delete {count} matched alias(es)?',
+    batchDeleteSuccess: '{count} alias(es) deleted',
+    batchDeleteEmpty: 'No matching aliases found',
+    batchDeleteKeywordEmpty: 'Keyword cannot be empty',
 }
 
 export default en
