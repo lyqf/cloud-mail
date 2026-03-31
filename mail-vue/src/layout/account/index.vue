@@ -3,7 +3,23 @@
     <div class="head-opt">
       <Icon v-perm="'account:add'" class="icon add" icon="ion:add-outline" width="23" height="23" @click="add"/>
       <Icon class="icon refresh" icon="ion:reload" width="18" height="18" @click="refresh"/>
+      <Icon v-perm="'account:delete'" class="icon batch-del" icon="material-symbols-light:filter-list-off-rounded"
+            width="22" height="22" @click="openBatchDelete" :title="t('batchDeleteAlias')"/>
     </div>
+
+    <el-dialog v-model="batchDeleteShow" :title="t('batchDeleteAlias')" append-to-body>
+      <div class="batch-delete-form">
+        <el-input
+            v-model="batchDeleteKeyword"
+            :placeholder="t('batchDeleteKeyword')"
+            clearable
+            @keyup.enter="confirmBatchDelete"
+        />
+        <el-button type="danger" :loading="batchDeleteLoading" style="width:100%" @click="confirmBatchDelete">
+          {{ t('batchDeleteAlias') }}
+        </el-button>
+      </div>
+    </el-dialog>
     <el-scrollbar class="scrollbar" ref="scrollbarRef">
       <div v-infinite-scroll="getAccountList" :infinite-scroll-distance="600" :infinite-scroll-immediate="false">
         <el-card class="item" :class="itemBg(item.accountId)" v-for="(item, index) in accounts" :key="item.accountId"
@@ -134,7 +150,8 @@ import {
   accountDelete,
   accountSetName,
   accountSetAllReceive,
-  accountSetAsTop
+  accountSetAsTop,
+  accountBatchDelete
 } from "@/request/account.js";
 import {sleep} from "@/utils/time-utils.js"
 import {isEmail} from "@/utils/verify-utils.js";
@@ -177,6 +194,38 @@ const addForm = reactive({
 let skeletonRows = 10
 const queryParams = {
   size: 30
+}
+
+// 批量删除别名
+const batchDeleteShow = ref(false)
+const batchDeleteKeyword = ref('')
+const batchDeleteLoading = ref(false)
+
+function openBatchDelete() {
+  batchDeleteKeyword.value = ''
+  batchDeleteShow.value = true
+}
+
+async function confirmBatchDelete() {
+  const kw = batchDeleteKeyword.value.trim()
+  if (!kw) {
+    ElMessage({ message: t('batchDeleteKeywordEmpty'), type: 'warning', plain: true })
+    return
+  }
+  try {
+    batchDeleteLoading.value = true
+    const { count } = await accountBatchDelete(userStore.user.userId, kw)
+    if (count === 0) {
+      ElMessage({ message: t('batchDeleteEmpty'), type: 'warning', plain: true })
+    } else {
+      ElMessage({ message: t('batchDeleteSuccess', { count }), type: 'success', plain: true })
+      batchDeleteKeyword.value = ''
+      batchDeleteShow.value = false
+      refresh()
+    }
+  } finally {
+    batchDeleteLoading.value = false
+  }
 }
 
 const mySelect = ref()
@@ -665,6 +714,17 @@ path[fill="#ffdda1"] {
   opacity: 0;
   pointer-events: none;
   position: fixed;
+}
+
+.batch-delete-form {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  padding-bottom: 6px;
+}
+
+.batch-del {
+  margin-left: 10px;
 }
 
 </style>

@@ -388,8 +388,8 @@ import {
   userRestore,
   userDeleteAccount,
   userAllAccount,
-  accountBatchDelete
 } from '@/request/user.js'
+import {accountBatchDelete} from '@/request/account.js'
 import {roleSelectUse} from "@/request/role.js";
 import {Icon} from "@iconify/vue";
 import loading from "@/components/loading/index.vue";

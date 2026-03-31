@@ -41,7 +41,3 @@ export function userAllAccount(userId, num, size) {
 export function userDeleteAccount(accountId) {
     return http.delete('/user/deleteAccount', {params:{accountId}})
 }
-
-export function accountBatchDelete(targetUserId, keyword) {
-    return http.delete('/account/batchDelete', {params: {targetUserId, keyword}})
-}

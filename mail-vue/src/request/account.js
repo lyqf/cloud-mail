@@ -23,3 +23,7 @@ export function accountSetAllReceive(accountId) {
 export function accountSetAsTop(accountId) {
     return http.put('/account/setAsTop', {accountId})
 }
+
+export function accountBatchDelete(targetUserId, keyword) {
+    return http.delete('/account/batchDelete', {params: {targetUserId, keyword}})
+}
