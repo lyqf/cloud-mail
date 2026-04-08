@@ -67,7 +67,10 @@ const emailService = {
 				)
 			).leftJoin(
 				account,
-				eq(account.accountId, email.accountId)
+				and(
+					eq(account.accountId, email.accountId),
+					eq(account.isDel, isDel.NORMAL)
+				)
 			)
 			.where(
 				and(
@@ -76,7 +79,6 @@ const emailService = {
 					timeSort ? gt(email.emailId, emailId) : lt(email.emailId, emailId),
 					eq(email.type, type),
 					eq(email.isDel, isDel.NORMAL),
-					eq(account.isDel, isDel.NORMAL)
 				)
 			);
 
@@ -91,7 +93,10 @@ const emailService = {
 		const totalQuery = orm(c).select({ total: count() }).from(email)
 			.leftJoin(
 				account,
-				eq(account.accountId, email.accountId)
+				and(
+					eq(account.accountId, email.accountId),
+					eq(account.isDel, isDel.NORMAL)
+				)
 			)
 			.where(
 				and(
@@ -99,7 +104,6 @@ const emailService = {
 					eq(email.userId, userId),
 					eq(email.type, type),
 					eq(email.isDel, isDel.NORMAL),
-					eq(account.isDel, isDel.NORMAL)
 				)
 		).get();
 
