@@ -1,5 +1,5 @@
 name = "cloud-mail"
-account_id = "dfb771ccbe430a8a29dbdc0cd2afd439"
+account_id = "0043a46c95bc18954ef875323b4ee22c"
 main = "src/index.js"
 compatibility_date = "2025-06-04"
 keep_vars = true
@@ -10,11 +10,11 @@ enabled = true
 [[d1_databases]]
 binding = "db"
 database_name = "email"
-database_id = "ed730418-b701-469b-bc87-437a33925138"
+database_id = "1e974942-f0b7-4ad4-aa84-457643436f8d"
 
 [[kv_namespaces]]
 binding = "kv"
-id = "6ecc5e6f780b47fa80d819e97d46dc7d"
+id = "c4c78acfaddf4222bb564b81f2938969"
 
 #[[r2_buckets]]
 #binding = "r2"			#r2对象存储绑定名默认不可修改
@@ -31,13 +31,13 @@ crons = ["0 16 * * *"]	#定时任务每天晚上12点执行
 
 
 [vars]
-domain = ["kaka.locationindoor.cn"]	#邮件域名可配置多个 示例: ["example1.com","example2.com"]
-admin = "admin@kaka.locationindoor.cn"	#管理员的邮箱
+domain = ["duck.llmailab.xyz"]	#邮件域名可配置多个 示例: ["example1.com","example2.com"]
+admin = "admin@duck.llmailab.xyz"	#管理员的邮箱
 jwt_secret = "5e10cdad698de1f32fdb331e68b88cef04d2f980cbec123e49e6dc3c123818c7"
 
 [build]
 command = "pnpm --prefix ../mail-vue install && pnpm --prefix ../mail-vue run build"
 
 [[routes]]
-pattern = "kaka.locationindoor.cn"
+pattern = "duck.llmailab.xyz"
 custom_domain = true
