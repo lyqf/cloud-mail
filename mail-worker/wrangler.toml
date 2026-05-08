@@ -31,13 +31,13 @@ crons = ["0 16 * * *"]	#定时任务每天晚上12点执行
 
 
 [vars]
-domain = ["duck.llmailab.xyz"]	#邮件域名可配置多个 示例: ["example1.com","example2.com"]
-admin = "admin@duck.llmailab.xyz"	#管理员的邮箱
+domain = ["claude.llmailab.xyz"]	#邮件域名可配置多个 示例: ["example1.com","example2.com"]
+admin = "admin@claude.llmailab.xyz"	#管理员的邮箱
 jwt_secret = "5e10cdad698de1f32fdb331e68b88cef04d2f980cbec123e49e6dc3c123818c7"
 
 [build]
 command = "pnpm --prefix ../mail-vue install && pnpm --prefix ../mail-vue run build"
 
 [[routes]]
-pattern = "duck.llmailab.xyz"
+pattern = "claude.llmailab.xyz"
 custom_domain = true
