@@ -1,0 +1,38 @@
+name = "cloud-mail-willsigil"
+account_id = "0043a46c95bc18954ef875323b4ee22c"
+main = "src/index.js"
+compatibility_date = "2025-06-04"
+keep_vars = true
+
+[observability]
+enabled = true
+
+[[d1_databases]]
+binding = "db"
+database_name = "email-willsigil"
+database_id = "a370af55-3931-4c6a-b87b-08993f3298a2"
+
+[[kv_namespaces]]
+binding = "kv"
+id = "832aa64d5c0e4d018e3968827bde5b7c"
+
+[assets]
+binding = "assets"
+directory = "./dist"
+not_found_handling = "single-page-application"
+run_worker_first = true
+
+[triggers]
+crons = ["0 16 * * *"]
+
+[vars]
+domain = ["willsigil.com"]
+admin = "admin@willsigil.com"
+jwt_secret = "5e10cdad698de1f32fdb331e68b88cef04d2f980cbec123e49e6dc3c123818c7"
+
+[build]
+command = "pnpm --prefix ../mail-vue install && pnpm --prefix ../mail-vue run build"
+
+[[routes]]
+pattern = "willsigil.com"
+custom_domain = true

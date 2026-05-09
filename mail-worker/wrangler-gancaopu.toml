@@ -1,0 +1,38 @@
+name = "cloud-mail-gancaopu"
+account_id = "0043a46c95bc18954ef875323b4ee22c"
+main = "src/index.js"
+compatibility_date = "2025-06-04"
+keep_vars = true
+
+[observability]
+enabled = true
+
+[[d1_databases]]
+binding = "db"
+database_name = "email-gancaopu"
+database_id = "e2e1d976-c779-4c11-b3b9-25ce620b58db"
+
+[[kv_namespaces]]
+binding = "kv"
+id = "ee9c22defa824546b3f8e8222044c1ef"
+
+[assets]
+binding = "assets"
+directory = "./dist"
+not_found_handling = "single-page-application"
+run_worker_first = true
+
+[triggers]
+crons = ["0 16 * * *"]
+
+[vars]
+domain = ["gancaopu.com"]
+admin = "admin@gancaopu.com"
+jwt_secret = "5e10cdad698de1f32fdb331e68b88cef04d2f980cbec123e49e6dc3c123818c7"
+
+[build]
+command = "pnpm --prefix ../mail-vue install && pnpm --prefix ../mail-vue run build"
+
+[[routes]]
+pattern = "gancaopu.com"
+custom_domain = true
