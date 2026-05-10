@@ -1,0 +1,38 @@
+name = "cloud-mail-tinghuabj"
+account_id = "0043a46c95bc18954ef875323b4ee22c"
+main = "src/index.js"
+compatibility_date = "2025-06-04"
+keep_vars = true
+
+[observability]
+enabled = true
+
+[[d1_databases]]
+binding = "db"
+database_name = "email-tinghuabj"
+database_id = "a4441644-a5af-444c-b2f9-c5d78ad1b9b6"
+
+[[kv_namespaces]]
+binding = "kv"
+id = "e1864797a9a540c4af504e7b7050ff2d"
+
+[assets]
+binding = "assets"
+directory = "./dist"
+not_found_handling = "single-page-application"
+run_worker_first = true
+
+[triggers]
+crons = ["0 16 * * *"]
+
+[vars]
+domain = ["tinghuabj.ccwu.cc"]
+admin = "admin@tinghuabj.ccwu.cc"
+jwt_secret = "5e10cdad698de1f32fdb331e68b88cef04d2f980cbec123e49e6dc3c123818c7"
+
+[build]
+command = "pnpm --prefix ../mail-vue install && pnpm --prefix ../mail-vue run build"
+
+[[routes]]
+pattern = "tinghuabj.ccwu.cc"
+custom_domain = true
