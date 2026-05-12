@@ -26,13 +26,13 @@ run_worker_first = true
 crons = ["0 16 * * *"]
 
 [vars]
-domain = ["format.willsigil.com"]
-admin = "admin@format.willsigil.com"
+domain = ["edu.willsigil.com"]
+admin = "admin@edu.willsigil.com"
 jwt_secret = "5e10cdad698de1f32fdb331e68b88cef04d2f980cbec123e49e6dc3c123818c7"
 
 [build]
 command = "pnpm --prefix ../mail-vue install && pnpm --prefix ../mail-vue run build"
 
 [[routes]]
-pattern = "format.willsigil.com"
+pattern = "edu.willsigil.com"
 custom_domain = true
