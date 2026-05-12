@@ -23,15 +23,14 @@
 
 同一份代码，通过不同 wrangler.toml 部署了多个独立实例。每个实例有独立的 Worker、D1 数据库、KV 命名空间。
 
-### sdjnhmx@gmail.com 账号（D1: email `1e974942`, KV: email `c4c78ac`）
+### sdjnhmx@gmail.com 账号
 
-| 域名 | Worker 名称 | 管理员邮箱 |
-|---|---|---|
-| lgbt.llmailab.xyz | cloud-mail | admin@lgbt.llmailab.xyz |
-| willsigil.com | cloud-mail-willsigil | admin@willsigil.com |
-| gancaopu.com | cloud-mail-gancaopu | admin@gancaopu.com |
-
-> `cloud-mail` 使用 `wrangler.toml`；独立域名使用各自的 `wrangler-<domain>.toml`
+| 域名 | Worker 名称 | 配置文件 | D1 | KV |
+|---|---|---|---|---|
+| edu.llmailab.xyz | cloud-mail | wrangler.toml | email `1e974942` | `c4c78ac` |
+| edu.willsigil.com | cloud-mail-willsigil | wrangler-willsigil.toml | email-willsigil `a370af55` | `832aa64d` |
+| edu.gancaopu.com | cloud-mail-gancaopu | wrangler-gancaopu.toml | email-gancaopu `e2e1d976` | `ee9c22de` |
+| edu.tinghuabj.ccwu.cc | cloud-mail-tinghuabj | wrangler-tinghuabj.toml | email-tinghuabj `a4441644` | `e1864797` |
 
 ### yunhuinfo4@gmail.com 账号（D1: email `ed730418`, KV: `6ecc5e6f`）
 
@@ -144,6 +143,81 @@ curl -s -X PUT "https://api.cloudflare.com/client/v4/zones/$ZONE_ID/email/routin
   -d "{\"matchers\":[{\"type\":\"all\"}],\"actions\":[{\"type\":\"worker\",\"value\":[\"$WORKER_NAME\"]}],\"enabled\":true,\"name\":\"catch-all\"}" \
   | python3 -c "import json,sys; d=json.load(sys.stdin); print('catch-all:', d['success'])"
 ```
+
+---
+
+## 更换邮箱前缀（SOP）
+
+适用场景：将所有实例的子域名前缀统一替换，例如 `format.*` → `edu.*`。
+
+### 第一步：批量修改所有 wrangler.toml
+
+```bash
+# 在 mail-worker/ 目录下执行，一次性替换所有配置文件
+sed -i '' 's/旧前缀\./新前缀\./g' wrangler.toml wrangler-willsigil.toml wrangler-gancaopu.toml wrangler-tinghuabj.toml
+
+# 验证替换结果
+grep -n "新前缀\." wrangler.toml wrangler-willsigil.toml wrangler-gancaopu.toml wrangler-tinghuabj.toml
+```
+
+每个 toml 文件中会同步修改三处：`domain`、`admin`、`[[routes]].pattern`。
+
+### 第二步：在 CF Email Routing 添加新子域名
+
+每个域名都需要把新的子域名注册到 Email Routing（否则该子域名收不到邮件）：
+
+```bash
+TOKEN="<flat-recipe-8a73 token 值>"
+
+# 格式：zones/<zone_id>/email/routing/dns，name 填新子域名完整名
+curl -s -X POST "https://api.cloudflare.com/client/v4/zones/<zone_id>/email/routing/dns" \
+  -H "Authorization: Bearer $TOKEN" -H "Content-Type: application/json" \
+  -d '{"name":"新前缀.<domain>"}' | python3 -c "import json,sys; d=json.load(sys.stdin); print(d['success'])"
+```
+
+各域名的 zone_id：
+
+| 域名 | zone_id |
+|---|---|
+| llmailab.xyz | `35ab2113a6abebd7255341755ce928c7` |
+| willsigil.com | `2882e242ea2a196cb1f5d311f836779d` |
+| gancaopu.com | `90d127b453fb799de2c0b4d3cb1954f0` |
+| tinghuabj.ccwu.cc | `49ac89cb1dd909b1881a319cd31b0945` |
+
+### 第三步：更新 catch-all 规则
+
+catch-all 规则已指向正确的 Worker，无需修改（Worker 名称不变）。但如需确认：
+
+```bash
+TOKEN="<flat-recipe-8a73 token 值>"
+ZONE_ID="<zone_id>"
+WORKER_NAME="<worker 名称>"
+
+curl -s -X PUT "https://api.cloudflare.com/client/v4/zones/$ZONE_ID/email/routing/rules/catch_all" \
+  -H "Authorization: Bearer $TOKEN" -H "Content-Type: application/json" \
+  -d "{\"matchers\":[{\"type\":\"all\"}],\"actions\":[{\"type\":\"worker\",\"value\":[\"$WORKER_NAME\"]}],\"enabled\":true,\"name\":\"catch-all\"}" \
+  | python3 -c "import json,sys; d=json.load(sys.stdin); print(d['success'])"
+```
+
+### 第四步：重新部署所有 Worker
+
+```bash
+cd mail-worker/
+wrangler deploy
+wrangler deploy --config wrangler-willsigil.toml
+wrangler deploy --config wrangler-gancaopu.toml
+wrangler deploy --config wrangler-tinghuabj.toml
+```
+
+### 第五步：提交推送
+
+```bash
+git add wrangler.toml wrangler-willsigil.toml wrangler-gancaopu.toml wrangler-tinghuabj.toml
+git commit -m "config: 切换邮箱域名前缀 旧前缀.* → 新前缀.*"
+git push origin main
+```
+
+> **注意**：新前缀子域名首次使用时数据库已存在（D1 不变），无需重新初始化。
 
 ---
 
