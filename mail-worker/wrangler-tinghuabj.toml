@@ -26,13 +26,13 @@ run_worker_first = true
 crons = ["0 16 * * *"]
 
 [vars]
-domain = ["edu.tinghuabj.ccwu.cc"]
-admin = "admin@edu.tinghuabj.ccwu.cc"
+domain = ["mail.tinghuabj.ccwu.cc"]
+admin = "admin@mail.tinghuabj.ccwu.cc"
 jwt_secret = "5e10cdad698de1f32fdb331e68b88cef04d2f980cbec123e49e6dc3c123818c7"
 
 [build]
 command = "pnpm --prefix ../mail-vue install && pnpm --prefix ../mail-vue run build"
 
 [[routes]]
-pattern = "edu.tinghuabj.ccwu.cc"
+pattern = "mail.tinghuabj.ccwu.cc"
 custom_domain = true

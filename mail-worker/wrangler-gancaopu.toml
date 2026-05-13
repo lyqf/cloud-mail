@@ -26,13 +26,13 @@ run_worker_first = true
 crons = ["0 16 * * *"]
 
 [vars]
-domain = ["edu.gancaopu.com"]
-admin = "admin@edu.gancaopu.com"
+domain = ["mail.gancaopu.com"]
+admin = "admin@mail.gancaopu.com"
 jwt_secret = "5e10cdad698de1f32fdb331e68b88cef04d2f980cbec123e49e6dc3c123818c7"
 
 [build]
 command = "pnpm --prefix ../mail-vue install && pnpm --prefix ../mail-vue run build"
 
 [[routes]]
-pattern = "edu.gancaopu.com"
+pattern = "mail.gancaopu.com"
 custom_domain = true
