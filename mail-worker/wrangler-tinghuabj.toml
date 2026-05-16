@@ -26,13 +26,13 @@ run_worker_first = true
 crons = ["0 16 * * *"]
 
 [vars]
-domain = ["opalstation.tinghuabj.ccwu.cc"]
-admin = "admin@opalstation.tinghuabj.ccwu.cc"
+domain = ["mailhub.tinghuabj.ccwu.cc"]
+admin = "admin@mailhub.tinghuabj.ccwu.cc"
 jwt_secret = "5e10cdad698de1f32fdb331e68b88cef04d2f980cbec123e49e6dc3c123818c7"
 
 [build]
 command = "pnpm --prefix ../mail-vue install && pnpm --prefix ../mail-vue run build"
 
 [[routes]]
-pattern = "opalstation.tinghuabj.ccwu.cc"
+pattern = "mailhub.tinghuabj.ccwu.cc"
 custom_domain = true
